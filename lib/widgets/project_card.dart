@@ -22,17 +22,19 @@ class _ProjectCardState extends State<ProjectCard> {
   @override
   void initState() {
     super.initState();
-    if (widget.project.videoUrl != null && widget.project.videoUrl!.isNotEmpty) {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.project.videoUrl!))
-        ..initialize().then((_) {
-          if (mounted) {
-            setState(() {
-              _isInitialized = true;
+    if (widget.project.videoUrl != null &&
+        widget.project.videoUrl!.isNotEmpty) {
+      _controller =
+          VideoPlayerController.networkUrl(Uri.parse(widget.project.videoUrl!))
+            ..initialize().then((_) {
+              if (mounted) {
+                setState(() {
+                  _isInitialized = true;
+                });
+                _controller?.setLooping(true);
+                _controller?.setVolume(0); // Muted
+              }
             });
-            _controller?.setLooping(true);
-            _controller?.setVolume(0); // Muted
-          }
-        });
     }
   }
 
@@ -62,14 +64,18 @@ class _ProjectCardState extends State<ProjectCard> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeOutQuint,
-          transform: _isHovering ? (Matrix4.identity()..translate(0, -12, 0)) : Matrix4.identity(),
+          transform: _isHovering
+              ? (Matrix4.identity()..translate(0, -12, 0))
+              : Matrix4.identity(),
           child: Card(
             elevation: _isHovering ? 30 : 4,
             shadowColor: Colors.blueAccent.withOpacity(0.3),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
-                color: _isHovering ? Colors.blueAccent.withOpacity(0.5) : Colors.white.withOpacity(0.05),
+                color: _isHovering
+                    ? Colors.blueAccent.withOpacity(0.5)
+                    : Colors.white.withOpacity(0.05),
                 width: 1,
               ),
             ),
@@ -82,8 +88,10 @@ class _ProjectCardState extends State<ProjectCard> {
                     ? CachedNetworkImage(
                         imageUrl: widget.project.images.first,
                         fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(color: const Color(0xFF1E293B)),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        placeholder: (context, url) =>
+                            Container(color: const Color(0xFF1E293B)),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       )
                     : Container(color: const Color(0xFF1E293B)),
 
@@ -97,7 +105,9 @@ class _ProjectCardState extends State<ProjectCard> {
                       curve: Curves.easeOutQuart,
                       margin: EdgeInsets.all(_isHovering ? 0 : 20),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(_isHovering ? 0 : 24),
+                        borderRadius: BorderRadius.circular(
+                          _isHovering ? 0 : 24,
+                        ),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: FittedBox(
@@ -121,12 +131,14 @@ class _ProjectCardState extends State<ProjectCard> {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        _isHovering ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.7),
+                        _isHovering
+                            ? Colors.black.withOpacity(0.9)
+                            : Colors.black.withOpacity(0.7),
                       ],
                     ),
                   ),
                 ),
-    
+
                 // Content
                 Positioned(
                   bottom: 24,
@@ -149,15 +161,24 @@ class _ProjectCardState extends State<ProjectCard> {
                             ),
                             const SizedBox(height: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.blueAccent.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+                                border: Border.all(
+                                  color: Colors.blueAccent.withOpacity(0.3),
+                                ),
                               ),
                               child: const Text(
                                 'View Project',
-                                style: TextStyle(color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],
@@ -170,12 +191,16 @@ class _ProjectCardState extends State<ProjectCard> {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: _isHovering ? Colors.blueAccent : Colors.white.withOpacity(0.1),
+                            color: _isHovering
+                                ? Colors.blueAccent
+                                : Colors.white.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.arrow_forward_rounded,
-                            color: _isHovering ? Colors.white : Colors.white.withOpacity(0.7),
+                            color: _isHovering
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.7),
                             size: 20,
                           ),
                         ),

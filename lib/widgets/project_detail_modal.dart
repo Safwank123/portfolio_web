@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models/project.dart';
 
 class ProjectDetailModal extends StatefulWidget {
@@ -161,6 +162,30 @@ class _ProjectDetailModalState extends State<ProjectDetailModal> {
                                 maxLines: 6,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                              if (widget.project.videoUrl != null &&
+                                  widget.project.videoUrl!.isNotEmpty) ...[
+                                const SizedBox(height: 30),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Swipe for video',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.arrow_forward_rounded,
+                                      color: Colors.blueAccent,
+                                      size: 20,
+                                    )
+                                        .animate(onPlay: (controller) => controller.repeat())
+                                        .moveX(begin: 0, end: 5, duration: 600.ms)
+                                        .fadeIn(duration: 600.ms),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),
