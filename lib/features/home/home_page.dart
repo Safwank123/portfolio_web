@@ -432,40 +432,40 @@ class Navbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final values = ResponsiveValues(constraints.maxWidth);
-        final isCompact = constraints.maxWidth < 560;
-
-        return Positioned(
+    return Positioned(
       top: 0,
       left: 0,
       right: 0,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final values = ResponsiveValues(constraints.maxWidth);
+          final isCompact = constraints.maxWidth < 560;
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
             height: isCompact ? 64 : 80,
-        decoration: BoxDecoration(
-          color: isScrolled
-              ? const Color(0xFF020617).withOpacity(0.9)
-              : Colors.transparent,
-          border: Border(
-            bottom: BorderSide(
+            decoration: BoxDecoration(
               color: isScrolled
-                  ? Colors.white.withOpacity(0.05)
+                  ? const Color(0xFF020617).withOpacity(0.9)
                   : Colors.transparent,
-              width: 1,
+              border: Border(
+                bottom: BorderSide(
+                  color: isScrolled
+                      ? Colors.white.withOpacity(0.05)
+                      : Colors.transparent,
+                  width: 1,
+                ),
+              ),
             ),
-          ),
-        ),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: isScrolled ? 12 : 0,
-              sigmaY: isScrolled ? 12 : 0,
-            ),
-            child: Padding(
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: isScrolled ? 12 : 0,
+                  sigmaY: isScrolled ? 12 : 0,
+                ),
+                child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: values.horizontalPadding,
+                    horizontal: isCompact ? 16 : values.horizontalPadding,
                   ),
                   child: Align(
                     alignment: isCompact
@@ -485,12 +485,12 @@ class Navbar extends StatelessWidget {
                       ),
                     ),
                   ),
+                ),
               ),
             ),
-          ),
-        ),
           );
-      },
+        },
+      ),
     );
   }
 }
@@ -566,15 +566,18 @@ class ContactSection extends StatelessWidget {
           ),
             SizedBox(height: values.isMobile ? 28 : 40),
           CursorHoverRegion(
-            child: ElevatedButton.icon(
-              onPressed: onSendEmail,
-              icon: const Icon(Icons.email),
-              label: const Text('Send an Email'),
-              style: ElevatedButton.styleFrom(
-                  minimumSize: Size(values.isMobile ? double.infinity : 0, 52),
+            child: SizedBox(
+              width: values.isMobile ? double.infinity : null,
+              child: ElevatedButton.icon(
+                onPressed: onSendEmail,
+                icon: const Icon(Icons.email),
+                label: const Text('Send an Email'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(0, 52),
                   padding: EdgeInsets.symmetric(
                     horizontal: values.isMobile ? 24 : 40,
                     vertical: values.isMobile ? 16 : 20,
+                  ),
                 ),
               ),
             ),
