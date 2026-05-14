@@ -57,6 +57,9 @@ class _ProjectCardState extends State<ProjectCard> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isMobile = width < 600;
+
     return CursorHoverRegion(
       child: InkWell(
         onTap: widget.onTap,
@@ -141,9 +144,9 @@ class _ProjectCardState extends State<ProjectCard> {
 
                 // Content
                 Positioned(
-                  bottom: 24,
-                  left: 24,
-                  right: 24,
+                  bottom: isMobile ? 18 : 24,
+                  left: isMobile ? 18 : 24,
+                  right: isMobile ? 18 : 24,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -153,8 +156,10 @@ class _ProjectCardState extends State<ProjectCard> {
                           children: [
                             Text(
                               widget.project.title,
-                              style: const TextStyle(
-                                fontSize: 24,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: isMobile ? 20 : 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -201,7 +206,7 @@ class _ProjectCardState extends State<ProjectCard> {
                             color: _isHovering
                                 ? Colors.white
                                 : Colors.white.withOpacity(0.7),
-                            size: 20,
+                            size: isMobile ? 18 : 20,
                           ),
                         ),
                       ),

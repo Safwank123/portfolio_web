@@ -22,18 +22,25 @@ class _ServiceCardState extends State<ServiceCard> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isMobile = width < 600;
+
     return CursorHoverRegion(
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovering = true),
         onExit: (_) => setState(() => _isHovering = false),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(isMobile ? 24 : 32),
           decoration: BoxDecoration(
-            color: _isHovering ? Colors.white.withOpacity(0.05) : Colors.transparent,
+            color: _isHovering
+                ? Colors.white.withOpacity(0.05)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: _isHovering ? Colors.blueAccent.withOpacity(0.3) : Colors.white.withOpacity(0.05),
+              color: _isHovering
+                  ? Colors.blueAccent.withOpacity(0.3)
+                  : Colors.white.withOpacity(0.05),
             ),
           ),
           child: Stack(
@@ -47,13 +54,17 @@ class _ServiceCardState extends State<ServiceCard> {
                       color: Colors.blueAccent.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(widget.icon, color: Colors.blueAccent, size: 32),
+                    child: Icon(
+                      widget.icon,
+                      color: Colors.blueAccent,
+                      size: isMobile ? 28 : 32,
+                    ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: isMobile ? 20 : 24),
                   Text(
                     widget.title,
-                    style: const TextStyle(
-                      fontSize: 24,
+                    style: TextStyle(
+                      fontSize: isMobile ? 21 : 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -62,7 +73,7 @@ class _ServiceCardState extends State<ServiceCard> {
                   Text(
                     widget.description,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: isMobile ? 15 : 16,
                       color: Colors.white.withOpacity(0.6),
                       height: 1.6,
                     ),

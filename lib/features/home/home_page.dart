@@ -20,6 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _projectsKey = GlobalKey();
+  final GlobalKey _servicesKey = GlobalKey();
   final GlobalKey _contactKey = GlobalKey();
   bool _isScrolled = false;
 
@@ -81,21 +82,20 @@ class _HomePageState extends State<HomePage> {
         children: [
           const Positioned.fill(child: AnimatedBackground()),
           SingleChildScrollView(
+            controller: _scrollController,
             child: Column(
               children: [
                 HeroSection(
                   onViewProjects: () => _scrollTo(_projectsKey),
                   onContact: () => _scrollTo(_contactKey),
                 ),
-                const SizedBox(height: 80),
-
+                const ResponsiveGap(),
                 const MarqueeTechStack(),
-                const SizedBox(height: 80),
-                const ServicesSection(),
-                const SizedBox(height: 80),
+                const ResponsiveGap(),
+                ServicesSection(key: _servicesKey),
+                const ResponsiveGap(),
                 ProjectsGrid(key: _projectsKey),
-
-                const SizedBox(height: 80),
+                const ResponsiveGap(),
                 ContactSection(key: _contactKey, onSendEmail: _sendEmail),
               ],
             ),
@@ -108,13 +108,50 @@ class _HomePageState extends State<HomePage> {
               curve: Curves.easeInOutQuart,
             ),
             onWork: () => _scrollTo(_projectsKey),
-            onServices: () =>
-                _scrollTo(_contactKey), // services is combined in home for now
+            onServices: () => _scrollTo(_servicesKey),
             onContact: () => _scrollTo(_contactKey),
           ),
         ],
       ),
     );
+  }
+}
+
+class ResponsiveValues {
+  final double width;
+
+  const ResponsiveValues(this.width);
+
+  bool get isMobile => width < 600;
+  bool get isTablet => width >= 600 && width < 1024;
+  bool get isDesktop => width >= 1024;
+
+  double get horizontalPadding {
+    if (isMobile) return 20;
+    if (isTablet) return 40;
+    return 64;
+  }
+
+  double get sectionGap {
+    if (isMobile) return 48;
+    if (isTablet) return 64;
+    return 80;
+  }
+
+  double clamp(double mobile, double tablet, double desktop) {
+    if (isMobile) return mobile;
+    if (isTablet) return tablet;
+    return desktop;
+  }
+}
+
+class ResponsiveGap extends StatelessWidget {
+  const ResponsiveGap({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final values = ResponsiveValues(MediaQuery.sizeOf(context).width);
+    return SizedBox(height: values.sectionGap);
   }
 }
 
@@ -131,9 +168,20 @@ class HeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final values = ResponsiveValues(size.width);
+    final nameSize = values.clamp(32, 48, 64);
+    final roleSize = values.clamp(38, 54, 64);
+    final bodySize = values.clamp(15, 17, 18);
+
     return Container(
-      height: size.height * 0.8,
+      constraints: BoxConstraints(minHeight: size.height * 0.86),
       width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        values.horizontalPadding,
+        values.isMobile ? 112 : 96,
+        values.horizontalPadding,
+        values.isMobile ? 80 : 96,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -147,43 +195,50 @@ class HeroSection extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                 Text(
                   'Muhammed Safwan',
+                  textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    letterSpacing: 4,
+                    fontSize: nameSize,
+                    letterSpacing: values.isMobile ? 1.5 : 4,
                     color: Colors.blueAccent,
                   ),
                 ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0),
                 const SizedBox(height: 10),
-                Stack(
-                      children: [
-                        // Outlined Text
-                        Text(
-                          'Flutter Developer',
-                          style: GoogleFonts.syne(
-                            fontSize: 64,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1.5,
-                            foreground: Paint()
-                              ..style = PaintingStyle.stroke
-                              ..strokeWidth = 2
-                              ..color = Colors.blueAccent.withOpacity(0.5),
-                          ),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Stack(
+                    children: [
+                      Text(
+                        'Flutter Developer',
+                        style: GoogleFonts.syne(
+                          fontSize: roleSize,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0,
+                          foreground: Paint()
+                            ..style = PaintingStyle.stroke
+                            ..strokeWidth = 2
+                            ..color = Colors.blueAccent.withOpacity(0.5),
                         ),
-                        Text(
-                          'Flutter Developer',
-                          style: GoogleFonts.syne(
-                            fontSize: 64,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1.5,
-                            color: Colors.white,
-                          ),
+                      ),
+                      Text(
+                        'Flutter Developer',
+                        style: GoogleFonts.syne(
+                          fontSize: roleSize,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0,
+                          color: Colors.white,
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
                     )
                     .animate()
                     .fadeIn(delay: 200.ms, duration: 600.ms)
@@ -196,8 +251,9 @@ class HeroSection extends StatelessWidget {
                             'Building beautiful, high-performance mobile and web applications.',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.dmMono(
-                              fontSize: 18,
+                              fontSize: bodySize,
                               color: Colors.white.withOpacity(0.7),
+                              height: 1.5,
                             ),
                           )
                           .animate()
@@ -205,16 +261,19 @@ class HeroSection extends StatelessWidget {
                           .slideY(begin: 0.2, end: 0),
                 ),
                 const SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 20,
+                  runSpacing: 14,
                   children: [
                     CursorHoverRegion(
                       child: ElevatedButton(
                         onPressed: onViewProjects,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 20,
+                          minimumSize: Size(values.isMobile ? 220 : 0, 52),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: values.isMobile ? 24 : 32,
+                            vertical: values.isMobile ? 16 : 20,
                           ),
                           backgroundColor: Colors.blueAccent,
                           foregroundColor: Colors.white,
@@ -222,14 +281,14 @@ class HeroSection extends StatelessWidget {
                         child: const Text('View Projects'),
                       ),
                     ).animate().fadeIn(delay: 600.ms).scale(),
-                    const SizedBox(width: 20),
                     CursorHoverRegion(
                       child: OutlinedButton(
                         onPressed: onContact,
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 20,
+                          minimumSize: Size(values.isMobile ? 220 : 0, 52),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: values.isMobile ? 24 : 32,
+                            vertical: values.isMobile ? 16 : 20,
                           ),
                           side: const BorderSide(color: Colors.blueAccent),
                         ),
@@ -238,10 +297,12 @@ class HeroSection extends StatelessWidget {
                     ).animate().fadeIn(delay: 800.ms).scale(),
                   ],
                 ),
-              ],
+                ],
+              ),
             ),
           ),
-          const Positioned(bottom: 40, child: ScrollIndicator()),
+          if (!values.isMobile)
+            const Positioned(bottom: 40, child: ScrollIndicator()),
         ],
       ),
     );
@@ -275,42 +336,62 @@ class ServicesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          const Text(
-            'My Services',
-            style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-          ).animate().fadeIn().slideY(),
-          const SizedBox(height: 60),
-          const Wrap(
-            spacing: 30,
-            runSpacing: 30,
-            alignment: WrapAlignment.center,
-            children: [
-              SizedBox(
-                width: 350,
-                child: ServiceCard(
-                  title: 'Mobile Development',
-                  description:
-                      'High-performance cross-platform apps built with Flutter for iOS and Android.',
-                  icon: Icons.phone_android,
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final values = ResponsiveValues(constraints.maxWidth);
+        final contentWidth = (constraints.maxWidth - values.horizontalPadding * 2)
+            .clamp(0.0, 1120.0);
+        final cardWidth = values.isMobile
+            ? contentWidth
+            : ((contentWidth - 30) / 2).clamp(280.0, 520.0);
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: values.horizontalPadding),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1120),
+              child: Column(
+                children: [
+                  Text(
+                    'My Services',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: values.clamp(30, 36, 40),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ).animate().fadeIn().slideY(),
+                  SizedBox(height: values.clamp(32, 48, 60)),
+                  Wrap(
+                    spacing: 30,
+                    runSpacing: 24,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: cardWidth,
+                        child: const ServiceCard(
+                          title: 'Mobile Development',
+                          description:
+                              'High-performance cross-platform apps built with Flutter for iOS and Android.',
+                          icon: Icons.phone_android,
+                        ),
+                      ),
+                      SizedBox(
+                        width: cardWidth,
+                        child: const ServiceCard(
+                          title: 'Web Development',
+                          description:
+                              'Responsive and interactive web applications using Flutter Web and modern web tech.',
+                          icon: Icons.web,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              SizedBox(
-                width: 350,
-                child: ServiceCard(
-                  title: 'Web Development',
-                  description:
-                      'Responsive and interactive web applications using Flutter Web and modern web tech.',
-                  icon: Icons.web,
-                ),
-              ),
-            ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -351,13 +432,18 @@ class Navbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final values = ResponsiveValues(constraints.maxWidth);
+        final isCompact = constraints.maxWidth < 560;
+
+        return Positioned(
       top: 0,
-      left: 1150,
+      left: 0,
       right: 0,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
-        height: 80,
+            height: isCompact ? 64 : 80,
         decoration: BoxDecoration(
           color: isScrolled
               ? const Color(0xFF020617).withOpacity(0.9)
@@ -378,37 +464,33 @@ class Navbar extends StatelessWidget {
               sigmaY: isScrolled ? 12 : 0,
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 60),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // GestureDetector(
-                  //   onTap: onHome,
-                  //   child: Text(
-                  //     'Muhammed Safwan',
-                  //     style: GoogleFonts.syne(
-                  //       fontSize: 24,
-                  //       fontWeight: FontWeight.w800,
-                  //       letterSpacing: 2,
-                  //       color: Colors.white,
-                  //     ),
-                  //   ),
-                  // ),
-                  Row(
-                    children: [
-                      _NavButton(label: 'WORK', onTap: onWork),
-                      const SizedBox(width: 40),
-                      _NavButton(label: 'SERVICES', onTap: onServices),
-                      const SizedBox(width: 40),
-                      _NavButton(label: 'CONTACT', onTap: onContact),
-                    ],
+                  padding: EdgeInsets.symmetric(
+                    horizontal: values.horizontalPadding,
                   ),
-                ],
+                  child: Align(
+                    alignment: isCompact
+                        ? Alignment.center
+                        : Alignment.centerRight,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _NavButton(label: 'WORK', onTap: onWork),
+                          SizedBox(width: isCompact ? 14 : 20),
+                          _NavButton(label: 'SERVICES', onTap: onServices),
+                          SizedBox(width: isCompact ? 14 : 20),
+                          _NavButton(label: 'CONTACT', onTap: onContact),
+                        ],
+                      ),
+                    ),
+                  ),
               ),
             ),
           ),
         ),
-      ),
+          );
+      },
     );
   }
 }
@@ -420,15 +502,20 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final values = ResponsiveValues(MediaQuery.sizeOf(context).width);
+
     return CursorHoverRegion(
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.symmetric(
+            vertical: 8,
+            horizontal: values.isMobile ? 2 : 0,
+          ),
           child: Text(
             label,
             style: GoogleFonts.dmMono(
-              fontSize: 13,
+              fontSize: values.isMobile ? 12 : 13,
               fontWeight: FontWeight.w500,
               letterSpacing: 1,
               color: Colors.white.withOpacity(0.8),
@@ -446,34 +533,54 @@ class ContactSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final values = ResponsiveValues(MediaQuery.sizeOf(context).width);
+
     return Container(
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        children: [
-          const Text(
+      padding: EdgeInsets.fromLTRB(
+        values.horizontalPadding,
+        values.isMobile ? 24 : 40,
+        values.horizontalPadding,
+        values.isMobile ? 48 : 60,
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 860),
+        child: Column(
+          children: [
+          Text(
             'Let\'s build something together',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: values.clamp(26, 30, 32),
+                fontWeight: FontWeight.bold,
+              ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'I\'m always open to new opportunities and collaborations.',
-            style: TextStyle(fontSize: 18, color: Colors.grey),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: values.clamp(15, 17, 18),
+                color: Colors.grey,
+                height: 1.5,
+              ),
           ),
-          const SizedBox(height: 40),
+            SizedBox(height: values.isMobile ? 28 : 40),
           CursorHoverRegion(
             child: ElevatedButton.icon(
               onPressed: onSendEmail,
               icon: const Icon(Icons.email),
               label: const Text('Send an Email'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 20,
+                  minimumSize: Size(values.isMobile ? double.infinity : 0, 52),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: values.isMobile ? 24 : 40,
+                    vertical: values.isMobile ? 16 : 20,
                 ),
               ),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -530,6 +637,7 @@ class MarqueeTechStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final values = ResponsiveValues(MediaQuery.sizeOf(context).width);
     final techs = [
       'Flutter',
       'Dart',
@@ -548,7 +656,7 @@ class MarqueeTechStack extends StatelessWidget {
     ];
 
     return Container(
-      height: 100,
+      height: values.isMobile ? 72 : 100,
       decoration: BoxDecoration(
         border: Border.symmetric(
           horizontal: BorderSide(color: Colors.white.withOpacity(0.05)),
@@ -561,12 +669,14 @@ class MarqueeTechStack extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final tech = techs[index % techs.length];
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: values.isMobile ? 24 : 40,
+                    ),
                     alignment: Alignment.center,
                     child: Text(
                       tech,
                       style: GoogleFonts.outfit(
-                        fontSize: 40,
+                        fontSize: values.isMobile ? 28 : 40,
                         fontWeight: FontWeight.bold,
                         color: Colors.white.withOpacity(0.1),
                       ),

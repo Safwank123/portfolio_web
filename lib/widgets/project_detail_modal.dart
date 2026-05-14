@@ -97,30 +97,38 @@ class _ProjectDetailModalState extends State<ProjectDetailModal> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isMobile = size.width < 800;
+    final isMobile = size.width < 600;
+    final isTablet = size.width >= 600 && size.width < 1024;
+    final dialogRadius = isMobile ? 18.0 : 24.0;
+    final contentPadding = isMobile ? 20.0 : 32.0;
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 10 : size.width * 0.1,
+        horizontal: isMobile ? 10 : (isTablet ? 32 : size.width * 0.1),
         vertical: isMobile ? 10 : size.height * 0.05,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF0F172A),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 1100,
+          maxHeight: size.height - (isMobile ? 20 : size.height * 0.1),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: SingleChildScrollView(
-          child: Column(
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(dialogRadius),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: SingleChildScrollView(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Media Header (Carousel)
               Stack(
                 children: [
                   AspectRatio(
-                    aspectRatio: 16 / 9,
+                    aspectRatio: isMobile ? 4 / 5 : 16 / 9,
                     child: CarouselSlider(
                       options: CarouselOptions(
                         height: double.infinity,
@@ -131,7 +139,7 @@ class _ProjectDetailModalState extends State<ProjectDetailModal> {
                       items: [
                         // Slide 1: Description
                         Container(
-                          padding: const EdgeInsets.all(40),
+                          padding: EdgeInsets.all(isMobile ? 24 : 40),
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
@@ -145,21 +153,25 @@ class _ProjectDetailModalState extends State<ProjectDetailModal> {
                             children: [
                               Text(
                                 widget.project.title,
-                                style: const TextStyle(
-                                  fontSize: 40,
+                                maxLines: isMobile ? 3 : 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: isMobile
+                                      ? 28
+                                      : (isTablet ? 34 : 40),
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: isMobile ? 14 : 20),
                               Text(
                                 widget.project.description,
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: isMobile ? 15 : 18,
                                   height: 1.6,
                                   color: Colors.white.withOpacity(0.9),
                                 ),
-                                maxLines: 6,
+                                maxLines: isMobile ? 7 : 6,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               if (widget.project.videoUrl != null &&
@@ -235,12 +247,13 @@ class _ProjectDetailModalState extends State<ProjectDetailModal> {
 
               // Content
               Padding(
-                padding: const EdgeInsets.all(32),
+                padding: EdgeInsets.all(contentPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
                       children: [
                         if (widget.project.githubUrl != null)
                           ElevatedButton.icon(
@@ -274,6 +287,7 @@ class _ProjectDetailModalState extends State<ProjectDetailModal> {
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),
